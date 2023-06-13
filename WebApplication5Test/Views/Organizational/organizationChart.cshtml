@@ -1,0 +1,300 @@
+﻿@*@model WebApplication5Test.Models.EmployeeModel*@
+@{
+    ViewBag.Title = "organizationChart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker3.standalone.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+    <style>
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .image-container {
+            text-align: center;
+        }
+
+            .image-container img {
+                max-width: 100%;
+                max-height: 100%;
+                border: 1px solid red;
+            }
+
+        .image-caption {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .derpartment {
+            margin-left: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .slider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-container {
+            display: flex;
+            overflow: hidden;
+            justify-content: center;
+        }
+
+        .slide {
+            flex: 0 0 180px;
+            margin-right: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            align-items: center;
+            scroll-snap-align: start;
+        }
+
+            .slide.active {
+                opacity: 1;
+            }
+
+        .image-caption {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+            .image-caption p {
+                margin: 0;
+                padding: 1px;
+                font-size: 12px;
+            }
+
+        .button-container {
+            margin-right: 20px;
+        }
+
+        .icon-button {
+            color: #0026ff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .btn-primary {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">
+            <p><strong>โครงสร้างองค์กร</strong></p>
+        </div>
+        <div class="body-content">
+            <div class="image-container">
+                <img src="~/Images/ทดสอบ2.png" alt="ผู้จัดการสมาคม">
+                <div class="image-caption">
+                    <p>ชื่อ : ทดสอบ ทดสอบทดสอบ</p>
+                    <p>ตำแหน่ง : ผู้จัดการสมาคม</p>
+                </div>
+            </div><br />
+            <div class="derpartment">
+                <p>ฝ่ายบริการฐานข้อมูลผู้ประกอบการ</p>
+            </div>
+            <div class="slider">
+                <div class="button-container">
+                    <button id="prevButton" class="icon-button"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="column">
+                    @foreach (var item in Model)
+                    {
+                        if (item.department == "ฝ่ายบริการฐานข้อมูลผู้ประกอบการ")
+                        {
+                            <div class="slide" style="display: inline-block; width: 180px;">
+                                <img src="@item.image" alt="Image" width="100%" height="auto">
+                                <div class="image-caption" style="white-space: nowrap; word-break: break-word;">
+                                    <p>ชื่อ : @item.name</p>
+                                    <p>ตำแหน่ง : @item.position</p>
+                                    <p>แผนก : @item.division</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="button-container">
+                    <button id="nextButton" class="icon-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div><br />
+            <div class="derpartment">
+                <p>ฝ่ายบริการสมาชิกและนักลงทุน</p>
+            </div>
+            <div class="slider">
+                <div class="button-container">
+                    <button id="prevButton" class="icon-button"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="column">
+                    @foreach (var item in Model)
+                    {
+                        if (item.department == "ฝ่ายบริการสมาชิกและนักลงทุน")
+                        {
+                            <div class="slide" style="display: inline-block; width: 180px;">
+                                <img src="@item.image" alt="Image" width="100%" height="auto">
+                                <div class="image-caption" style="white-space: nowrap; word-break: break-word;">
+                                    <p>ชื่อ : @item.name</p>
+                                    <p>ตำแหน่ง : @item.position</p>
+                                    <p>แผนก : @item.division</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="button-container">
+                    <button id="nextButton" class="icon-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div><br />
+            <div class="derpartment">
+                <p>ฝ่ายบัญชีและการเงิน</p>
+            </div>
+            <div class="slider">
+                <div class="button-container">
+                    <button id="prevButton" class="icon-button"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="column">
+                    @foreach (var item in Model)
+                    {
+                        if (item.department == "ฝ่ายบัญชีและการเงิน")
+                        {
+                            <div class="slide" style="display: inline-block; width: 180px;">
+                                <img src="@item.image" alt="Image" width="100%" height="auto">
+                                <div class="image-caption" style="white-space: nowrap; word-break: break-word;">
+                                    <p>ชื่อ : @item.name</p>
+                                    <p>ตำแหน่ง : @item.position</p>
+                                    <p>แผนก : @item.division</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="button-container">
+                    <button id="nextButton" class="icon-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div><br />
+            <div class="derpartment">
+                <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
+            </div>
+            <div class="slider">
+                <div class="button-container">
+                    <button id="prevButton" class="icon-button"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="column">
+                    @foreach (var item in Model)
+                    {
+                        if (item.department == "ฝ่ายเทคโนโลยีสารสนเทศ")
+                        {
+                            <div class="slide" style="display: inline-block; width: 180px;">
+                                <img src="@item.image" alt="Image" width="100%" height="auto">
+                                <div class="image-caption" style="white-space: nowrap; word-break: break-word;">
+                                    <p>ชื่อ : @item.name</p>
+                                    <p>ตำแหน่ง : @item.position</p>
+                                    <p>แผนก : @item.division</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="button-container">
+                    <button id="nextButton" class="icon-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div><br />
+            <div class="derpartment">
+                <p>ฝ่ายบริหารกลาง</p>
+            </div>
+            <div class="slider">
+                <div class="button-container">
+                    <button id="prevButton" class="icon-button"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="column">
+                    @foreach (var item in Model)
+                    {
+                        if (item.department == "ฝ่ายบริหารกลาง")
+                        {
+                            <div class="slide" style="display: inline-block; width: 180px;">
+                                <img src="@item.image" alt="Image" width="100%" height="auto">
+                                <div class="image-caption" style="white-space: nowrap; word-break: break-word;">
+                                    <p>ชื่อ : @item.name</p>
+                                    <p>ตำแหน่ง : @item.position</p>
+                                    <p>แผนก : @item.division</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="button-container">
+                    <button id="nextButton" class="icon-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div><br />
+
+        <a href="@Url.Action("AddOrganizational", "Organizational")" class="btn btn-primary">แก้ไข</a>
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script>
+        const prevButton = document.getElementById("prevButton");
+        const nextButton = document.getElementById("nextButton");
+        const slides = Array.from(document.querySelectorAll(".slide"));
+
+        const visibleSlideCount = 4;
+        let currentIndex = 0;
+
+        function showSlides() {
+            slides.forEach((slide, index) => {
+                if (index >= currentIndex && index < currentIndex + visibleSlideCount) {
+                    slide.classList.add("active");
+                } else {
+                    slide.classList.remove("active");
+                }
+            });
+        }
+
+        prevButton.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showSlides();
+            }
+        });
+
+        nextButton.addEventListener("click", () => {
+            if (currentIndex < slides.length - visibleSlideCount) {
+                currentIndex++;
+                showSlides();
+            }
+        });
+
+        showSlides();
+
+    </script>
+
+</body>
+
+</html>
+
+
