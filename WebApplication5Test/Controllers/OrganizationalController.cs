@@ -197,56 +197,7 @@ namespace WebApplication5Test.Controllers
             }
             return divisions;
         }
-        //[HttpPost]
-        //public ActionResult AddEmployee(EmployeeModel model, HttpPostedFileBase ImageFile)
-        //{
-        //    if (ImageFile != null && ImageFile.ContentLength > 0)
-        //    {
-        //        // ตรวจสอบประเภทไฟล์ภาพ
-        //        string fileExtension = Path.GetExtension(ImageFile.FileName);
-        //        string[] allowedExtensions = { ".jpg", ".jpeg", ".png" };
 
-        //        if (allowedExtensions.Contains(fileExtension.ToLower()))
-        //        {
-        //            // กำหนดชื่อไฟล์และเส้นทางในเครื่องแม่ข่ายเว็บ
-        //            string fileName = Path.GetFileName(ImageFile.FileName);
-        //            string folderPath = Server.MapPath("~/Uploads/EmployeeImages");
-        //            string filePath = Path.Combine(folderPath, fileName);
-
-        //            // บันทึกไฟล์ลงในเครื่องแม่ข่ายเว็บ
-        //            ImageFile.SaveAs(filePath);
-
-        //            using (SqlConnection con = new SqlConnection(sqlConn))
-        //            {
-        //                string query = "INSERT INTO EmployeeInformation2 (name, position, department, division, status, image) VALUES (@name, @position, @department, @division, @status, @image)";
-        //                using (SqlCommand cmd = new SqlCommand(query))
-        //                {
-        //                    cmd.Connection = con;
-        //                    cmd.Parameters.AddWithValue("@name", model.name);
-        //                    cmd.Parameters.AddWithValue("@position", model.position);
-        //                    cmd.Parameters.AddWithValue("@department", model.department);
-        //                    cmd.Parameters.AddWithValue("@division", model.division);
-        //                    cmd.Parameters.AddWithValue("@status", model.status);
-        //                    cmd.Parameters.AddWithValue("@image", filePath);
-
-        //                    con.Open();
-        //                    cmd.ExecuteNonQuery();
-        //                    con.Close();
-        //                }
-        //            }
-
-        //            return RedirectToAction("AddOrganizational", "Organizational"); /*, new { imagePath = filePath }*/
-        //        }
-        //        else
-        //        {
-        //            ModelState.AddModelError("ImageFile", "กรุณาเลือกไฟล์ภาพที่ถูกต้อง (สกุล .jpg, .jpeg, .png)");
-        //        }
-        //    }
-
-        //    // กรณีไม่มีไฟล์ที่อัปโหลด
-        //    ModelState.AddModelError("ImageFile", "กรุณาเลือกรูปภาพที่ต้องการอัปโหลด");
-        //    return View();
-        //}
         [HttpPost]
         public ActionResult AddEmployee(EmployeeModel model, HttpPostedFileBase ImageFile)
         {
@@ -260,7 +211,7 @@ namespace WebApplication5Test.Controllers
                     string fileName = Path.GetFileName(ImageFile.FileName);
                     string folderPath = Server.MapPath("~/Uploads/EmployeeImages");
                     string filePath = Path.Combine(folderPath, fileName);
-                    string storageFile = @"Uploads\EmployeeImages\" + fileName;
+                    string storageFile = @"Uploads/EmployeeImages/" + fileName;
 
 
                     if (!Directory.Exists(folderPath))

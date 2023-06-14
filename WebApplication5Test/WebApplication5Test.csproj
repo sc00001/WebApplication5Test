@@ -149,6 +149,7 @@
     <Content Include="obj\Debug\WebApplication5Test.pdb" />
     <Content Include="Uploads\EmployeeImages\test.jpg" />
     <Content Include="Uploads\EmployeeImages\test.png" />
+    <Content Include="Uploads\EmployeeImages\ทดสอบ2.png" />
     <Content Include="Uploads\Images\Logo_สมาคมสโมสรนักลงทุน.png" />
     <Content Include="Uploads\Images\N1GneFw3_400.png" />
     <Content Include="Uploads\Images\คน.jpg" />
@@ -168,8 +169,6 @@
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="Models\FolderModel.cs" />
     <Compile Include="Models\PositionModel.cs" />
-    <Compile Include="obj\Debug\.NETFramework,Version=v4.5.AssemblyAttributes.cs" />
-    <Compile Include="obj\Release\.NETFramework,Version=v4.5.AssemblyAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +226,7 @@
     <Folder Include="App_Browsers\" />
     <Folder Include="App_Data\" />
     <Folder Include="obj\Debug\TempPE\" />
+    <Folder Include="obj\Release\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
