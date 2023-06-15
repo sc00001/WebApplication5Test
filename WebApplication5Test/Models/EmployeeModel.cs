@@ -8,6 +8,8 @@ namespace WebApplication5Test.Models
 {
     public class EmployeeModel
     {
+        internal string Division;
+
         public int id_number { get; set; }
         public string name { get; set; }
         public string position { get; set; }

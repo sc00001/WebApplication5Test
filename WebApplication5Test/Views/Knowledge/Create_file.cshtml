@@ -94,11 +94,11 @@
 
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto; 
+            margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 30%; 
-            height: 30%;
+            width: 30%;
+            height: 40%;
             border-radius: 5px;
         }
 
@@ -109,12 +109,12 @@
             font-weight: bold;
         }
 
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
+            .close:hover,
+            .close:focus {
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+            }
 
         #keyword-form label {
             display: block;
@@ -126,6 +126,7 @@
             padding: 5px;
             margin-bottom: 10px;
         }
+
         #submit {
             background-color: #6495ED;
             color: white;
@@ -146,6 +147,7 @@
             min-width: 80px;
             height: 32px;
         }
+
         .custom-dropdown {
             appearance: none;
             -webkit-appearance: none;
@@ -194,11 +196,7 @@
         <br />
         <div class="form-group">
             @Html.LabelFor(model => model.keyword, "KEYWORD")
-            @Html.DropDownListFor(m => m.keyword, new List<SelectListItem>
-            {
-            new SelectListItem { Text="เรียนรู้", Value="เรียนรู้" },
-            new SelectListItem { Text="ทดสอบ", Value="ทดสอบ" }
-            }, "กรุณาเลือก", new { @class = "form-control custom-dropdown" })
+            @Html.DropDownListFor(model => model.keyword, ViewBag.Keywords as IEnumerable<SelectListItem>, "---เลือกKeyword---", new { @class = "form-control custom-dropdown" })
             @*@Html.ValidationMessageFor(model => model.keyword, "", new { @class = "text-danger" })*@
         </div>
         <br />
@@ -230,7 +228,7 @@
             });
         </script>
         <div class="form-group">
-            @Html.Label("fileuploadFile", "เอกสาร (ขนาดของไฟล์ต้องไม่เกิน 5 MB)")
+            @Html.Label("fileuploadFile", "เอกสาร (.pdf/.doc/.docx/.ppt/.pptx/.png/.jpg ขนาดของไฟล์ต้องไม่เกิน 5 MB )")
             <input type="file" id="fileUpload" name="fileUpload" class="form-control" />
         </div>
         <br />
@@ -281,6 +279,26 @@
         var keyword = keywordInput.value;
         console.log("เพิ่ม Keyword: " + keyword);
         modal.style.display = "none";
+
+        // ส่งข้อมูลไปยังคอนโทรลเลอร์โดยใช้ AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Knowledge/saveKeyword", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        // กำหนดข้อมูลที่จะส่ง
+        var data = "keyword=" + encodeURIComponent(keyword);
+
+        // ตรวจสอบสถานะของคำขอ
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log("บันทึกข้อมูลสำเร็จ");
+            } else {
+                console.log("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+            }
+        };
+
+        // ส่งคำขอ AJAX
+        xhr.send(data);
     });
 </script>
 

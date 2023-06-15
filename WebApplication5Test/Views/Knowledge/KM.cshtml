@@ -27,14 +27,14 @@
     .new-items {
         display: flex;
         align-items: center;
-        margin-right: 90px;
+        margin-right: 20px;
         margin-left: auto;
     }
 
     .search-form {
         display: flex;
         align-items: center;
-        margin-left: 710px;
+        margin-left: 400px;
     }
 
     input[type="text"] {
@@ -103,24 +103,24 @@
         /*width: 80%;*/
     }
 
-    .styled-table thead tr {
-        background-color: #f2f2f2;
-        color: #000000;
-        text-align: left;
-    }
-    
-    .styled-table th,
-    .styled-table td {
-        padding: 12px 15px;
-    }
-    
-    .styled-table tbody tr {
-        border-bottom: 1px solid #dddddd;
-    }
+        .styled-table thead tr {
+            background-color: #f2f2f2;
+            color: #000000;
+            text-align: left;
+        }
 
-    .styled-table tbody tr:last-of-type {
-        border-bottom: 2px solid #f2f2f2;
-    }
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+            .styled-table tbody tr:last-of-type {
+                border-bottom: 2px solid #f2f2f2;
+            }
 
     .popover {
         position: fixed;
@@ -142,21 +142,34 @@
         padding: 10px;
         z-index: 999;
     }
-
 </style>
 <!--content-->
 <div class="content">
     <h1 class="title">Knowledge Management</h1>
     <div class="new-items">
-        <a href="@Url.Action("Create_file","Knowledge", new { folderID = ViewBag.Id})" class="upload-btn">Upload File</a>
-        <form class="search-form">
-            <input type="text" placeholder="Search..." name="search">
-            <button type="submit">Go</button>
+        <a href="@Url.Action("Create_file","Knowledge", new { folderID = ViewBag.Id})" class="upload-btn">เพิ่มเอกสาร</a>
+
+        <form class="search-form" id="search-name-doc">
+            <div class="col">
+                <div class="col-auto">
+                    <input type="text" id="name" class="form-control border-secondary" placeholder="ค้นหาเอกสาร...." >
+                </div>
+            </div> &nbsp; &nbsp;
+            <div class="col">
+                <div class="col-auto">
+                    <select id="keywordDropdown" class="form-control custom-select border-secondary" style="width: 250px; height:40px;">
+                        <option value="">---เลือก Keyword---</option>
+                        <!-- ตำแหน่งสำหรับแสดงรายการ keyword ที่ดึงมาจากฐานข้อมูล -->
+                    </select>
+                </div>
+            </div>&nbsp; &nbsp;&nbsp; &nbsp;
+            <button type="button" class="btn btn-primary" id="searchButton">ค้นหา</button> &nbsp; &nbsp;
+            <button type="button" class="btn btn-secondary" id="resetButton">รีเซ็ตข้อมูล</button>
         </form>
     </div>
 </div>
-<hr class="style19"><br /> <!--end content-->
-
+<hr class="style19">
+<br /> <!--end content-->
 @*<p>This is folder ID : @ViewBag.Id</p>*@
 
 <table class="styled-table">
@@ -165,13 +178,14 @@
             <th>ลำดับ</th>
             <th>ชื่อเอกสาร</th>
             <th>ประเภทเอกสาร</th>
+            <th>KEYWORD</th>
             <th>วันที่ลงเอกสาร</th>
             <th>วันที่แก้ไขเอกสาร</th>
             <th>เอกสาร</th>
             <th>จัดการเอกสาร</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="searchResultsTableBody">
         @*เพิ่มลำดับ*@
         @{
             int counter = 1;
@@ -187,6 +201,7 @@
                 </td>
                 <td>@item.file_name</td>
                 <td>@item.genre</td>
+                <td>@item.keyword</td>
                 <td>@item.dayReleaseDate </td>
                 <td>@item.dayEditDate </td>
                 <td>
@@ -314,3 +329,108 @@
     }
 </script>
 
+@*Search*@
+<script>
+    $(document).ready(function () {
+        // ค้นหาข้อมูลเมื่อคลิกที่ปุ่มค้นหา
+        $("#searchButton").click(function () {
+            searchDocuments();
+        });
+
+        // รีเซ็ตข้อมูลเมื่อคลิกที่ปุ่มรีเซ็ต
+        $("#resetButton").click(function () {
+            resetSearch();
+        });
+    });
+
+    function searchDocuments() {
+        var searchText = $("#name").val();
+        var keyword = $("#keywordDropdown").val();
+
+        // ส่งค่าไปยัง API เพื่อค้นหาเอกสาร
+        $.ajax({
+            url: "/Knowledge/searchDocuments",
+            type: "POST",
+            data: {
+                searchText: searchText,
+                keyword: keyword
+            },
+            success: function (data) {
+                // แสดงผลลัพธ์การค้นหาในตาราง
+                displaySearchResults(data);
+            },
+            error: function (xhr, status, error) {
+                // จัดการข้อผิดพลาด (ถ้ามี)
+                console.log(error);
+            }
+        });
+    }
+
+    function resetSearch() {
+        // รีเซ็ตค่าในช่องค้นหาและ dropdown
+        $("#name").val("");
+        $("#keywordDropdown").val("");
+
+        // ค้นหาเอกสารทั้งหมด
+        searchDocuments();
+    }
+
+    function displaySearchResults(data) {
+        var tableBody = $("#searchResultsTableBody");
+        tableBody.empty();
+
+        if (data.length === 0) {
+            tableBody.append("<tr><td colspan='4'>ไม่พบผลลัพธ์ที่ค้นหา</td></tr>");
+            return;
+        }
+
+        // วนลูปผ่านข้อมูลและเพิ่มแถวลงในตาราง
+         $.each(data.Details.Documents, function (index, document) {
+            var row = $("<tr></tr>");
+            row.append("<td>" + (index + 1) + "</td>");
+            row.append("<td>" + document.file_name + "</td>");
+            row.append("<td>" + document.genre + "</td>");
+            row.append("<td>" + document.keyword + "</td>");
+            row.append("<td>" + document.dayReleaseDate + "</td>");
+            row.append("<td>" + document.dayEditDate + "</td>");
+            row.append('<td><a href="/Knowledge/OpenFile/' + document.id + '" target="_blank" onmouseover="showViewCountPopover(this, ' + document.id + ')">ดูเอกสาร</a>' +
+                '<div id="viewCountPopover" class="popover">' +
+                '<div class="popover-content">ยอดดูเอกสาร <span id="viewCountValue">0</span> คน</div>' +
+                '</div></td>');
+            row.append('<td>' +
+                '<a href="/Knowledge/Edit/' + document.id + '?folderID=' + '@ViewBag.Id' + '" class="btn btn-warning" id="' + document.id + '">แก้ไข</a> &nbsp;' +
+                '<input type="button" value="ลบ" class="btn btn-danger delete-btn" data-id="' + document.id + '" /> &nbsp;' +
+                '<a href="javascript:;" class="btn btn-primary" onclick="DownloadFile(' + document.id + ')">โหลด</a>' +
+                '</td>');
+
+            tableBody.append(row);
+        });
+    }
+
+</script>
+
+<script> @*ดึงKEYWORD มาทำDroupDown*@
+    $(document).ready(function () {
+        populateKeywordDropdown();
+    });
+
+    function populateKeywordDropdown() {
+        $.ajax({
+            url: "/Knowledge/GetKeywords", 
+            type: "GET",
+            success: function (data) {
+                var dropdown = $("#keywordDropdown");
+                dropdown.empty();
+                dropdown.append($("<option>").val("").text("เลือก Keyword"));
+
+                $.each(data, function (index, keyword) {
+                    dropdown.append($("<option>").val(keyword).text(keyword));
+                });
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+</script>

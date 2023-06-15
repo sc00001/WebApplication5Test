@@ -1,0 +1,111 @@
+﻿@model WebApplication5Test.Models.DataEvents
+
+@using (Html.BeginForm("EditEvents", "Calendar", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+    <h4>DataEvents</h4>
+    <hr />
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    @Html.HiddenFor(model => model.EventID) @*เพิ่มมา 19/5/66*@
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.EventDate, "วันกิจกรรมประจำวัน")
+        <div class='input-group date' id='dtReleaseDate'>
+
+            @Html.TextBoxFor(model => model.EventDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control", placeholder = "กรอกวันกิจกรรมประจำวัน" })
+
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.StartTime, "เวลาเริ่มต้น")
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.StartTime, "{0:HH:mm}", new { @class = "form-control", @type = "time", @placeholder = "กรอกเวลาเริ่มต้น" })
+            @Html.ValidationMessageFor(model => model.StartTime, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.EndTime, "เวลาสิ้นสุด")
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.EndTime, "{0:HH:mm}", new { @class = "form-control", @type = "time", @placeholder = "กรอกเวลาสิ้นสุด" })
+            @Html.ValidationMessageFor(model => model.EndTime, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Subject, "หัวเรื่อง")
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control", placeholder = "กรอกชื่อหัวเรื่อง" } })
+            @Html.ValidationMessageFor(model => model.Subject, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Detail, "รายละเอียด")
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Detail, new { htmlAttributes = new { @class = "form-control", placeholder = "กรอกรายละเอียดกิจกรรม" } })
+            @Html.ValidationMessageFor(model => model.Detail, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Department, "แผนกงาน")
+        <div class="col-md-10">
+            @Html.DropDownListFor(model => model.Department, new List<SelectListItem>
+            {
+                new SelectListItem { Text = "แผนกบริการข้อมูลวัตถุดิบ", Value = "แผนกบริการข้อมูลวัตถุดิบ" },
+                new SelectListItem { Text = "แผนกบริการข้อมูลเครื่องจักร", Value = "แผนกบริการข้อมูลเครื่องจักร" },
+                new SelectListItem { Text = "แผนกบริการส่วนภูมิภาค", Value = "แผนกบริการส่วนภูมิภาค" },
+                new SelectListItem { Text = "แผนกฝึกอบรมและบริการนักลงทุน", Value = "แผนกฝึกอบรมและบริการนักลงทุน" },
+                new SelectListItem { Text = "แผนกลูกค้าสัมพันธ์และสื่อสารองค์กร", Value = "แผนกลูกค้าสัมพันธ์และสื่อสารองค์กร" },
+                new SelectListItem { Text = "แผนก Counter Service & Call Center", Value = "แผนก Counter Service & Call Center" },
+                new SelectListItem { Text = "แผนกบัญชี", Value = "แผนกบัญชี" },
+                new SelectListItem { Text = "แผนกการเงิน", Value = "แผนกการเงิน" },
+                new SelectListItem { Text = "แผนกพัฒนาระบบ", Value = "แผนกพัฒนาระบบ" },
+                new SelectListItem { Text = "แผนกบริหารระบบ", Value = "แผนกบริหารระบบ" },
+                new SelectListItem { Text = "แผนกบุคล", Value = "แผนกบุคล" },
+                new SelectListItem { Text = "แผนกบริหารงานทั่วไป", Value = "แผนกบริหารงานทั่วไป" },
+                new SelectListItem { Text = "แผนกจัดซื้อ", Value = "แผนกจัดซื้อ" }
+            }, "เลือกแผนกงาน", new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Department, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Save" class="btn btn-default" />
+        </div>
+    </div>
+</div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+
+<script>
+    // Get the current date
+    var currentDate = new Date();
+    var year = currentDate.getFullYear();
+    var month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+    var day = ("0" + currentDate.getDate()).slice(-2);
+    // Format the current date as "yyyy-MM-dd" for setting the default value
+    var formattedDate = year + "-" + month + "-" + day;
+    // Set the default value of the datepicker to the formatted current date
+    document.getElementById("EditEvent").value = formattedDate;
+    // Allow selecting a different date
+    document.getElementById("EditEvent").addEventListener("input", function () {
+        this.setAttribute("type", "date");
+    });
+   
+</script>

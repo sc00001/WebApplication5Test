@@ -39,14 +39,14 @@ namespace WebApplication5Test.Controllers
         // GET: Knowledge
         public ActionResult KM(int id)
         {
-            
+
             ViewBag.Id = id;
-            
+
             var result = new List<FileModel>();
             DataTable dataTableaCreateFile = new DataTable();
             var getCreateFile = "SELECT * FROM [CreateFiles] WHERE folder_id = @folderId ";
             using (SqlConnection con = new SqlConnection(sqlConn))
-            {               
+            {
                 con.Open();
                 using (var cmd = new SqlCommand(getCreateFile, con))
                 {
@@ -59,6 +59,13 @@ namespace WebApplication5Test.Controllers
                     con.Close();
                 }
             }
+            List<string> keywords = GetDataKeywordmentFromDatabase();
+            IEnumerable<SelectListItem> dropdownKeywords = keywords.Select(d => new SelectListItem
+            {
+                Value = d,
+                Text = d
+            });
+            ViewBag.Keywords = dropdownKeywords;
             return View(result);
         }
 
@@ -91,7 +98,7 @@ namespace WebApplication5Test.Controllers
             return model;
         }
 
-        
+
         //[HttpGet]
         //public ActionResult pass(int folderID)
         //{
@@ -110,7 +117,35 @@ namespace WebApplication5Test.Controllers
             });
             ViewBag.DocumentTypes = dropdownDocumentTypes;
 
+            List<string> keywords = GetDataKeywordmentFromDatabase();
+            IEnumerable<SelectListItem> dropdownKeywords = keywords.Select(d => new SelectListItem
+            {
+                Value = d,
+                Text = d
+            });
+            ViewBag.Keywords = dropdownKeywords;
+
+
             return View();
+        }
+
+        private List<string> GetDataKeywordmentFromDatabase()
+        {
+            List<string> keywords = new List<string>();
+            using (SqlConnection con = new SqlConnection(sqlConn))
+            {
+                string query = "SELECT keyword FROM AddKeyword";
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string document = reader.GetString(0);
+                    keywords.Add(document);
+                }
+                reader.Close();
+            }
+            return keywords;
         }
         private List<string> GetDocumentTypesFromDatabase()
         {
@@ -132,6 +167,22 @@ namespace WebApplication5Test.Controllers
         }
 
         [HttpPost]
+        public ActionResult saveKeyword(string keyword)
+        {
+            using (SqlConnection con = new SqlConnection(sqlConn))
+            {
+                con.Open();
+                string query = "INSERT INTO AddKeyword (keyword) VALUES (@keyword)";
+                using (SqlCommand command = new SqlCommand(query, con))
+                {
+                    command.Parameters.AddWithValue("@keyword", keyword);
+                    command.ExecuteNonQuery();
+                }
+            }
+            return RedirectToAction("Create_file");
+        }
+
+        [HttpPost]
         public ActionResult Create_file(HttpPostedFileBase fileUpload, FileModel model)
         {
             int folderId = model.folder_id;
@@ -145,7 +196,7 @@ namespace WebApplication5Test.Controllers
 
                 string fileName = Path.GetFileName(fileUpload.FileName);
                 string fileExtension = Path.GetExtension(fileUpload.FileName);
-                
+
                 int view = 0;
                 int download = 0;
 
@@ -201,7 +252,7 @@ namespace WebApplication5Test.Controllers
                         cmd.Parameters.AddWithValue("@uploadFile", filePath);
                         cmd.Parameters.AddWithValue("@view", model.view_count);
                         cmd.Parameters.AddWithValue("@download", model.download_count);
-                        cmd.Parameters.AddWithValue("@folderId", folderId); 
+                        cmd.Parameters.AddWithValue("@folderId", folderId);
 
                         con.Open();
                         cmd.ExecuteNonQuery();
@@ -335,7 +386,7 @@ namespace WebApplication5Test.Controllers
 
             return RedirectToAction("KM");
         }
-        public ActionResult Edit(int id, int folderId, string genre)
+        public ActionResult Edit(int id, int folderId, string genre, string keyword)
         {
             FileModel model = new FileModel();
             using (SqlConnection con = new SqlConnection(sqlConn))
@@ -368,6 +419,15 @@ namespace WebApplication5Test.Controllers
                 Text = d
             });
             ViewBag.DocumentTypes = dropdownDocumentTypes;
+
+            List<string> keywords = GetDataKeywordmentFromDatabase();
+            IEnumerable<SelectListItem> dropdownKeywords = keywords.Select(d => new SelectListItem
+            {
+                Value = d,
+                Text = d
+            });
+            ViewBag.Keywords = dropdownKeywords;
+
             ViewBag.Id = folderId;
             return View(model);
         }
@@ -496,7 +556,7 @@ namespace WebApplication5Test.Controllers
                     // ไม่พบเอกสารที่ต้องการอัปเดต
                     Console.WriteLine("Document with ID: " + id + " not found.");
                 }
-            }       
+            }
         }
 
         public ActionResult GetViewCount(int id)
@@ -580,7 +640,7 @@ namespace WebApplication5Test.Controllers
 
             return null; // หากไม่พบเอกสารที่เกี่ยวข้องกับ id ที่ระบุ
         }
-       
+
         public ActionResult ViewDownload_count()
         {
             var result = new List<FileModel>();
@@ -620,7 +680,7 @@ namespace WebApplication5Test.Controllers
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //สร้าง Folders
 
-        public ActionResult CreateFoldersKM()
+        public ActionResult CreateFoldersKM(string searchText)
         {
             var result = new List<FolderModel>();
             DataTable dataTableaCreateFolder = new DataTable();
@@ -775,5 +835,146 @@ namespace WebApplication5Test.Controllers
         }
 
 
+        //DroupdownKeyword//
+        public JsonResult GetKeywords()
+        {
+            // ดึงข้อมูล keyword จากฐานข้อมูล SQL
+            List<string> keywords = GetDataKeywordmentFromDatabase();
+
+            return Json(keywords, JsonRequestBehavior.AllowGet);
+        }
+
+
+        /////////////////----Search----/////////////////
+        [HttpPost]
+        public JsonResult searchDocType(string searchText)
+        {
+            List<FolderModel> folders = GetFolderFromDatabase();
+            List<FolderModel> filteredFolders = folders;
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredFolders = filteredFolders.Where(m => m.folder_name.Contains(searchText)).ToList();
+            }
+
+            // สร้าง ViewModel สำหรับส่งไปยังวิว
+            var viewModel = new
+            {
+                Details = filteredFolders
+            };
+
+            return Json(new[] { viewModel });
+
+        }
+
+        private List<FolderModel> GetFolderFromDatabase()
+        {
+
+            List<FolderModel> folders = new List<FolderModel>();
+
+            using (SqlConnection con = new SqlConnection(sqlConn))
+            {
+                string query = "SELECT * FROM [CreateFolders]";
+                SqlCommand command = new SqlCommand(query, con);
+
+                con.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    FolderModel folder = new FolderModel();
+                    folder.folder_id = reader.GetInt32(reader.GetOrdinal("folder_id"));
+                    folder.folder_name = reader.IsDBNull(reader.GetOrdinal("folder_name")) ? "-" : reader.GetString(reader.GetOrdinal("folder_name"));
+                    folder.description = reader.IsDBNull(reader.GetOrdinal("description")) ? "-" : reader.GetString(reader.GetOrdinal("description"));
+
+                    folders.Add(folder);
+                }
+
+                reader.Close();
+            }
+
+            return folders;
+        }
+
+
+        [HttpPost]
+        public JsonResult searchDocuments(string searchText, string keyword)
+        {
+            // ดึงข้อมูลเอกสารทั้งหมดจากแหล่งข้อมูล เช่น SQL
+            List<FileModel> documents = GetDocumentsFromDatabase();
+            List<FileModel> filteredDocuments = documents;
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredDocuments = filteredDocuments.Where(d => d.file_name.Contains(searchText)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                filteredDocuments = filteredDocuments.Where(d => d.keyword == keyword).ToList();
+            }
+
+            // สร้าง ViewModel สำหรับส่งไปยังวิว
+            var viewModel = new DocumentViewModel
+            {
+                Documents = filteredDocuments,
+                Keywords = GetDataKeywordmentFromDatabase()
+            };
+
+            return Json(new
+            {
+                Details = viewModel
+            });
+        }
+
+        private List<FileModel> GetDocumentsFromDatabase()
+        {
+            List<FileModel> items = new List<FileModel>();
+            using (SqlConnection con = new SqlConnection(sqlConn))
+            {
+                string query = "SELECT * FROM [CreateFiles]";
+                SqlCommand command = new SqlCommand(query, con);
+
+                con.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    FileModel item = new FileModel();
+                    item.id = reader.GetInt32(reader.GetOrdinal("id"));
+                    item.file_name = reader.IsDBNull(reader.GetOrdinal("file_name")) ? "-" : reader.GetString(reader.GetOrdinal("file_name"));
+                    item.keyword = reader["keyword"] == DBNull.Value ? null : reader["keyword"].ToString();
+                    item.genre = reader["genre"] == DBNull.Value ? null : reader["genre"].ToString();
+                    item.releaseDate = Convert.ToDateTime(reader["releaseDate"] == DBNull.Value ? null : reader["releaseDate"].ToString());
+                    string FormatDate = item.releaseDate.ToString("dd/MM/yyyy");
+                    item.dayReleaseDate = FormatDate;
+
+                    object editDateValue = reader["editDate"];
+                    if (editDateValue == DBNull.Value)
+                    {
+                        item.dayEditDate = string.Empty;
+                    }
+                    else
+                    {
+                        item.editDate = (DateTime)editDateValue;
+                        item.dayEditDate = item.editDate.ToString("dd/MM/yyyy");
+                    }
+
+                    item.uploadFile = reader["uploadFile"] == DBNull.Value ? null : reader["uploadFile"].ToString();
+
+                    items.Add(item);
+                }
+
+                reader.Close();
+            }
+
+            return items;
+
+        } 
+    
+    
+    
+    
+    
+    
     }
 }

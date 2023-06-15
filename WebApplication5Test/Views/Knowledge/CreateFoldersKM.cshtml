@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "CreateFoldersKM";
 }
 
@@ -214,8 +213,8 @@
                     </form>
                 </div>
             </div>
-            <form class="search-form">
-                <input type="text" placeholder="Search..." name="search">
+            <form class="search-form" id="search-form">
+                <input type="text" placeholder="ค้นหาประเภทเอกสาร..." name="search" id="search-input">
                 <button type="submit">Go</button>
             </form>
         </div>
@@ -240,7 +239,7 @@
             }
             @foreach (var folder in Model)
             {
-                <tr>
+                <tr class="Search">
                     <td>
                         @counter
                         @{
@@ -257,10 +256,10 @@
                     <td> @folder.description </td>
                     <td>
                         <input type="button" value="ลบ" class="btn btn-danger delete-btn" data-id="@folder.folder_id" />
-                    </td>                   
+                    </td>
                     @*<td>
-                        @folder.folder_id
-                    </td>*@
+                            @folder.folder_id
+                        </td>*@
                 </tr>
             }
         </tbody>
@@ -364,8 +363,87 @@
                     });
             }
         });
+    </script>
 
+    <script>
+        $(document).ready(function () {
+            // ค้นหาข้อมูลเมื่อคลิกที่ปุ่มค้นหา
+            $("#search-form").submit(function (e) {
+                e.preventDefault();
+                searchDocType();
+            });
 
+        });
+        function searchDocType() {
+            var searchText = $("#search-input").val();
+                // ส่งค่าไปยังแอ็กชันในคอนโทรลเลอร์เพื่อค้นหาข้อมูลประเภทเอกสาร
+             $.ajax({
+                url: "/Knowledge/searchDocType",
+                type: "POST",
+                data: {
+                    searchText: searchText,
+ 
+                },
+                success: function (data) {
+                    // แสดงข้อมูลผลลัพธ์ในตาราง
+                    displayDocType(data);
+                },
+                error: function (xhr, status, error) {
+                    // จัดการข้อผิดพลาด (ถ้ามี)
+                    console.log(error);
+                }
+            });
+        }
+        function displayDocType(data) {
+            var tbody = $("#folders-table-body");
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.append("<tr><td colspan='4'>ไม่พบข้อมูลประเภทเอกสาร</td></tr>");
+                return;
+            }
+
+            var counter = 1;
+            $.each(data[0].Details, function (index, folder) {
+                var row = $("<tr></tr>");
+                row.append("<td>" + counter + "</td>");
+                row.append("<td><div class='folder-details'><img class='folder-image'>&nbsp; &nbsp;<a href='/Knowledge/KM?id=" + folder.folder_id + "' id='folder-link-" + folder.folder_id + "'>" + folder.folder_name + "</a></div></td>");
+                row.append("<td>" + folder.description + "</td>");
+                row.append("<td><input type='button' value='ลบ' class='btn btn-danger delete-btn' data-id='" + folder.folder_id + "' /></td>");
+
+                tbody.append(row);
+                counter++;
+            });
+
+            // ให้ปุ่มลบประเภทเอกสารที่เพิ่มเข้าไปทำงาน
+            $(".delete-btn").click(function () {
+                if (confirm('คุณต้องการลบประเภทเอสารหรือไม่เอกสารหรือไม่')) {
+                    var id = $(this).data("id");
+                    var row = $(this).closest("tr");
+
+                    $.ajax({
+                        url: "/Knowledge/DeleteFolder",
+                        type: "POST",
+                        data: { id: id },
+                        success: function (response) {
+                            if (response.success) {
+                                // Remove the row from the UI
+                                row.remove();
+                                console.log("Data deleted successfully.");
+
+                                // Reload the page
+                                location.reload();
+                            } else {
+                                console.log("Error deleting data.");
+                            }
+                        },
+                        error: function () {
+                            console.log("Error deleting data.");
+                        }
+                    });
+                }
+            });
+        }
 
     </script>
 

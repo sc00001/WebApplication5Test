@@ -97,11 +97,7 @@
             <br />
             <div class="form-group">
                 @Html.LabelFor(model => model.keyword, "KEYWORD")
-                @Html.DropDownListFor(m => m.keyword, new List<SelectListItem>
-                {
-                new SelectListItem { Text="เรียนรู้", Value="เรียนรู้" },
-                new SelectListItem { Text="ทดสอบ", Value="ทดสอบ" }
-                }, "กรุณาเลือก", new { @class = "form-control custom-dropdown" })
+                @Html.DropDownListFor(model => model.keyword, ViewBag.Keywords as IEnumerable<SelectListItem>, "---เลือกKeyword---", new { @class = "form-control custom-dropdown" })
             </div>
             <br />
             <div class="form-group">

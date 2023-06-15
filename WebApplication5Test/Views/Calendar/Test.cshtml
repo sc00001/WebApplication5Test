@@ -1,0 +1,375 @@
+﻿
+@{
+    ViewBag.Title = "Test";
+}
+<head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .container {
+            border: 0px solid darkgrey;
+            border-radius: 3px;
+            padding: 5px;
+            margin: 0 auto;
+        }
+
+        .left-section img {
+            max-width: 70%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .hightligh a {
+            background: #ED2939 !important;
+            color: #000000 !important;
+        }
+
+        .highlight-event a {
+            background: #33CC99 !important;
+            color: #000000 !important;
+        }
+
+        .ui-datepicker {
+            background-color: #B0C4DE !important;
+            border: 1px solid #F5F5DC;
+            color: #000000;
+            right: 0;
+            left: auto;
+            transform: translateX(340%);
+            margin-top: -430px;
+        }
+
+        .upload-btn-container {
+            position: absolute;
+            top: 445px;
+            right: 100px;
+        }
+
+        .container #year {
+            position: absolute;
+            right: 370px;
+            z-index: 2;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center; /* Center align the buttons */
+            align-items: center;
+            margin-top: 3px;
+        }
+
+        .button-container a {
+            margin: 0 10px; /* Add some space between the buttons */
+        }
+
+        #new-folder-items {
+            margin: 0 auto;
+            border: 1px solid red;
+            display: none;
+            position: fixed;
+            justify-content: center;
+            align-items: center;
+            margin-right: 30px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .upload-btn {
+            background-color: #46C2CB;
+            color: black;
+            padding: 8px 16px;
+            border: none;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            margin: auto;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .styled-table thead tr {
+            background-color: #f2f2f2;
+            color: #000000;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #f2f2f2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <br />
+    <div class='container'>
+        <div class="right-section">
+            <select id="year">
+                @for (int year = DateTime.Now.Year; year >= 2021; year--)
+                {
+                    <option value="@year">@year</option>
+                }
+            </select>
+
+            <div class="left-section">
+                <img src="https://drive.google.com/uc?export=view&id=1mSKa0ILsaL-JvdtODL9C6v9uF7g9vO5E" alt="Press Release Image">
+            </div>
+
+            <div class="upload-btn-container">
+                <a href="ViewallHoliday" class="upload-btn">ดูข้อมูลวันหยุดประจำปีทั้งหมด</a>
+            </div>
+
+            <br /><br /><br /><br />
+            <div class="button-container">
+                <div>
+                    <a id="annual-holiday-btn" href="ViewHoliday" class="upload-btn">วันหยุดประจำปี</a>
+                </div>
+                <div>
+                    <a id="weekly-activities-btn" href="ViewEvents" class="upload-btn">กิจกรรมประจำสัปดาห์</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class='container'>
+        <div id="datepicker"></div>
+    </div>
+
+    <br />
+    <h2 style="color: #0A4D68; font-size: 24px; text-align: center;">
+        <i class="fas fa-bullhorn" style="margin-right: 10px;"></i> กิจกรรมประจำสัปดาห์
+    </h2>
+
+    <br/>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>วันที่</th>
+                <th>เวลาเริ่มต้น</th>
+                <th>เวลาสิ้นสุด</th>
+                <th>หัวเรื่อง</th>
+                <th>แผนกงาน</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int counter = 1;
+                if (Model != null)
+                {
+                    DateTime today = DateTime.Today;
+                    int currentDayOfWeek = (int)today.DayOfWeek;
+                    DateTime startOfWeek = today.AddDays(-(currentDayOfWeek - 1));
+                    DateTime endOfWeek = today.AddDays(7 - currentDayOfWeek);
+
+                    foreach (var item in Model)
+                    {
+                        DateTime eventDate = DateTime.Parse(item.Event_Date);
+                        if (eventDate >= startOfWeek && eventDate <= endOfWeek)
+                        {
+                            <tr>
+                                <td>@counter</td>
+                                @{ counter++; }
+                                <td>@item.Event_Date</td>
+                                <td>@item.Start_Time</td>
+                                <td>@item.End_Time</td>
+                                <td>@item.Subject</td>
+                                <td>@item.Department</td>
+                            </tr>
+                         }
+
+                    }
+                } 
+            }
+        </tbody>
+    </table>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            var queryDate = null;
+
+            $(function () {
+                $("#year").change(function () {
+                    $('#datepicker').datepicker("destroy");
+                    var conceptName = $('#year').find(":selected").text();
+                    higHlightDays(conceptName);
+                });
+            });
+
+            higHlightDays();
+
+            function higHlightDays(year) {
+                if (year == null) {
+                    queryDate = null;
+                } else {
+                    queryDate = '1/1/' + year;
+                }
+
+                // Rest of your code...
+
+            }
+
+            function setHoliday(date, jsonHoliday, jsonEvents) {
+                // Rest of your code...
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            /*var queryDate = '1/1/2022';*/
+            var queryDate = null;
+
+            /*queryDate = '1/1/' + currentYear;*/
+
+            $(function () {
+                $("#year").change(function () {
+                    $('#datepicker').datepicker("destroy");
+                    var conceptName = $('#year').find(":selected").text();
+                    higHlightDays(conceptName);
+                });
+
+            });
+            higHlightDays();
+            function higHlightDays(year)
+            {
+                if (year == null) {
+                    queryDate = null;
+                }
+                else {
+                    queryDate = '1/1/' + year;
+                    /*queryDate = day + month + year;*/
+                }
+                var dataHoliday =
+                {
+                    Year: year
+                }
+                $.ajax({
+                    url: '@Url.Action("getEventday", "Calendar")',
+                    type: "POST",
+                    data: JSON.stringify(dataHoliday),
+                    dataType: "json",
+                    contentType: "application/json",
+                    beforeSend: function () {
+
+                    },
+                    success: function (json) {
+                        console.log(json);
+                        if ((json[0].Status.Status) && (json[0].Status.Success)) {
+
+                            var listDataTableaHoliday = json[0].Details.dataTableaHoliday;
+                            var listDataTableEvents = json[0].Details.dataTableEvents
+                            var dataHoliday = JSON.parse(listDataTableaHoliday);
+                            var dataEvents = JSON.parse(listDataTableEvents);
+
+                            $('#datepicker').datepicker({
+                                beforeShowDay: function (date) {
+                                    return setHoliday(date, dataHoliday, dataEvents);
+                                }
+                                ,defaultDate: queryDate
+                            });
+
+                        }
+                    },
+                    complete: function () {
+                        //$(".loading").hide();
+                    },
+                    error: function (response) {
+                        // document.getElementById("text-error").innerHTML = "You can't check back the past year.";
+                    }
+                });
+            }
+
+
+            function setHoliday(date, jsonHoliday,jsonEvents) {
+
+                if (jsonHoliday != null)
+                {
+                    const dates = [];
+                    const tips = [];
+                    for (let i = 0; i < jsonHoliday.length; i++) {
+                        dates.push(jsonHoliday[i].Day_Holiday);
+                        tips.push(jsonHoliday[i].Details);
+                    }
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    var day = date.getDate();
+                    var newdate = day + "/" + month + '/' + year;
+                    for (var i = 0; i < dates.length; i++) {
+                        if (dates[i].toString() == newdate) {
+                            return [true, 'hightligh', tips[i]];
+                        }
+                    }
+                }
+
+                if (jsonEvents != null)
+                {
+                    const eventDates = [];
+                    const eventTitles = [];
+
+                    for (let i = 0; i < jsonEvents.length; i++) {
+                        eventDates.push(jsonEvents[i].EventDate);
+                        eventTitles.push(jsonEvents[i].Subject);
+                    }
+
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    var day = date.getDate();
+                    var newDate = day + "/" + month + '/' + year;
+
+                    for (var i = 0; i < eventDates.length; i++) {
+                        if (eventDates[i].toString() == newDate) {
+                            return [true, 'highlight-event', eventTitles[i]];
+                        }
+                    }
+                }
+                return [true, ''];
+            }
+        });
+    </script>
+
+    <script>
+        const jsonEvents = [];
+        if (jsonEvents != null) {
+            const eventID = [];
+            const eventDate = [];
+            const startTime = [];
+            const endTime = [];
+            const subject = [];
+
+            for (let i = 0; i < jsonEvents.length; i++) {
+                eventID.push(jsonEvents[i].EventID);
+                eventDate.push(jsonEvents[i].EventDate);
+                startTime.push(jsonEvents[i].StartTime);
+                endTime.push(jsonEvents[i].EndTime);
+                subject.push(jsonEvents[i].Subject);
+            }
+        }
+    </script>
+</body>

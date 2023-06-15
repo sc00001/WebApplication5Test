@@ -12,5 +12,7 @@ namespace WebApplication5Test.Models
         public String dayReleaseDate { get; set; }
         public string description { get; set; }
 
+        public List<FolderModel> FolderNames { get; set; }
+
     }
 }

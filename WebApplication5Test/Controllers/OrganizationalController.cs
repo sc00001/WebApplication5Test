@@ -373,10 +373,75 @@ namespace WebApplication5Test.Controllers
             return View();
         }
 
+        //Search//   
 
-       
+        [HttpPost]
+        public JsonResult SearchEmployees(string searchText, string position, string division)
+        {
+            // ดึงข้อมูลพนักงานทั้งหมดจากแหล่งข้อมูล เช่น SQL
+            List<EmployeeModel> employees = GetEmployeesFromDatabase();
 
+            // กรองข้อมูลพนักงานตามเงื่อนไขการค้นหา
+            List<EmployeeModel> filteredEmployees = employees;
 
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredEmployees = filteredEmployees.Where(e => e.name.Contains(searchText)).ToList();
+            }
 
-    }             
+            if (!string.IsNullOrEmpty(position))
+            {
+                filteredEmployees = filteredEmployees.Where(e => e.position == position).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(division))
+            {
+                filteredEmployees = filteredEmployees.Where(e => e.division == division).ToList();
+            }
+
+            // สร้าง ViewModel สำหรับส่งไปยังวิว
+            var viewModel = new AddOrganizationalViewModel
+            {
+                Employees = filteredEmployees,
+                Positions = GetDropdownPositions(),
+                Divisions = GetDropdownDivisions()
+            };
+
+            return Json(new[] { new{
+                    Details = viewModel
+                }});
+        
+        }
+
+        private IEnumerable<SelectListItem> GetDropdownPositions()
+        {
+            // ดึงข้อมูลตำแหน่งจากแหล่งข้อมูล เช่น SQL
+            List<string> positions = GetDataPositionFromSQL();
+
+            // สร้าง Dropdown จากข้อมูลตำแหน่ง
+            IEnumerable<SelectListItem> dropdownPositions = positions.Select(p => new SelectListItem
+            {
+                Value = p,
+                Text = p
+            });
+
+            return dropdownPositions;
+        }
+
+        private IEnumerable<SelectListItem> GetDropdownDivisions()
+        {
+            // ดึงข้อมูลแผนกจากแหล่งข้อมูล เช่น SQL
+            List<string> divisions = GetDataDivisionFromSQL();
+
+            // สร้าง Dropdown จากข้อมูลแผนก
+            IEnumerable<SelectListItem> dropdownDivisions = divisions.Select(p => new SelectListItem
+            {
+                Value = p,
+                Text = p
+            }).ToList();
+
+            return dropdownDivisions;
+        }
+
+    }
 }
